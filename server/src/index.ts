@@ -20,11 +20,13 @@ const io = new Server(httpServer, {
 
 
 // why wont the console log appear when i connect to the server?  
-io.on("connection", (socket) => {
+let isXTurn = true;
+io.on('connection', (socket) => {
   console.log('a user connected')
-  socket.on("tileClicked", (arg) => {
-      console.log('true');
-      socket.emit("tileClicked", "true");
+  socket.on('tileClicked', () => {
+      isXTurn = !isXTurn;
+      console.log(isXTurn);
+      socket.emit('turnChange', isXTurn);
   });
 });
 

@@ -1,4 +1,4 @@
-import { useContext, useState} from "react"
+import { useContext, useEffect, useState} from "react"
 import { TicTacToeContext } from "../context/TicTacToeContext"
 import { TicTacToeContextState, TileProps } from "../types/tictactoe"
 import { io } from 'socket.io-client';
@@ -6,28 +6,46 @@ import { io } from 'socket.io-client';
 const socket = io('http://localhost:3000')
 
 
-const Tile = ({ id, children }: TileProps) => {
-    const { isXTurn }:TicTacToeContextState = useContext(TicTacToeContext);
-    
 
-    const [isClicked, setIsClicked] = useState(Boolean)
+const Tile = ({ id, children }: TileProps) => {
+    const { isXTurn, setIsXTurn } = useContext(TicTacToeContext);
+    const [isClicked, setIsClicked] = useState(false);
+    const [letterIcon, setLetterIcon] = useState('hidden');
+
+    console.log('isXTurn'+isXTurn);
+    useEffect(() => {
+        socket.on('turnChange', (arg) => {
+            if (isClicked) {
+                setLetterIcon(arg ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
+                console.log(arg)
+            }
+            console.log('isXTurn'+arg);
+        });
+
+        // if (isClicked) {
+        //     setLetterIcon(isXTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
+        //     console.log(isXTurn)
+        // }
+        return () => {
+            socket.off('turnChange');
+        };
+    }, [isClicked, isXTurn]);
+
     const handleClick = () => {
-        setIsClicked(true)
-        console.log(isClicked)
-        console.log(isXTurn)
-        socket.emit('tileClicked', true)
-        let letterIcon: string = 'hidden';
-        if (isXTurn && isClicked) {
-            letterIcon = 'fa-solid fa-x fa-5x';
-        } else if (!isXTurn && isClicked) {
-            letterIcon = 'fa-solid fa-o fa-5x';
+        if (!isClicked) {
+            console.log('isClicked'+isClicked);
+            
+            setIsClicked(true);
+            // setIsXTurn(!isXTurn);
+            setLetterIcon(isXTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
+            socket.emit('tileClicked', true);
         }
-        console.log(letterIcon)
+        
     }
 
     return (
         <div id={String(id)} className={'tile'} onClick={handleClick}>
-            <i className={ isXTurn && isClicked ? 'fa-solid fa-x fa-5x' : !isXTurn && isClicked ? 'fa-solid fa-o fa-5x' : 'hidden' }></i>
+            <i className={ letterIcon }></i>
             {children}
         </div>
     )
