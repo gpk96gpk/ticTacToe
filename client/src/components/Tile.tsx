@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState} from "react"
 import { TicTacToeContext } from "../context/TicTacToeContext"
-import { TicTacToeContextState, TileProps } from "../types/tictactoe"
+import { TileProps } from "../types/tictactoe"
 import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:3000')
@@ -8,7 +8,7 @@ const socket = io('http://localhost:3000')
 
 
 const Tile = ({ id, children }: TileProps) => {
-    const { isXTurn, setIsXTurn } = useContext(TicTacToeContext);
+    const { isXTurn } = useContext(TicTacToeContext);
     const [isClicked, setIsClicked] = useState(false);
     const [letterIcon, setLetterIcon] = useState('hidden');
 
@@ -20,6 +20,7 @@ const Tile = ({ id, children }: TileProps) => {
                 console.log(arg)
             }
             console.log('isXTurn'+arg);
+            console.log('isXTurn'+isXTurn);
         });
 
         // if (isClicked) {
