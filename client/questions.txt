@@ -1,0 +1,128 @@
+Is this the best way to get the return of the function as boolean?
+        const handleClick = () => {
+        return Boolean(setIsPlayer1(!isPlayer1));
+    }
+
+Will react handle all the state updates for the tiles accurately?
+Can react component handle recognizing that the player clicked this specific tile?
+
+Take a snap shot of the board after every turn switch.
+emit the updated board to the server
+when the server receives the new board broadcast to the room
+have tiles or board listen for broadcast from the server and update the board/tiles
+
+How to get specific tile to update from one client to other?
+Use html ID?
+use parameter id or components passed to each tile?
+create an array that listens for tile updates and updates corresponding tile on array
+use the same array to check for win/loss/draw conditions
+
+How do I set up something to emit a tile being clicked. 
+Listen for the tile click and then change the state of 
+the game from the server and emit it to both players or just the other player?
+
+Once the game state is set how do I see if it is player1 or player2 that is trying to make a move?
+How do I prevent the player from making any moves and make the turn indicator specific to that player?
+
+Can I use prependAny to shorten the event listeners for isXTurn?
+
+
+How do I link the TicTacToe.jsx to JoinRoom.jsx?
+
+pass the values in tiles in as parameters so each tile has different values.
+
+Create a context to wrap the tiles
+
+Should I just use context to initialize values? The edit the state on the board or tictactoe component?
+
+
+
+import express from 'express'
+import { createServer } from "http"
+import { Server } from 'socket.io'
+
+const app = express()
+const httpServer = createServer()
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173"
+  }
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(new URL('../../client/src/main.tsx', import.meta.url).pathname)
+  console.log('hello')
+});
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('tileClicked', (arg) => {
+    console.log('arg')
+    isXTurn = !isXTurn
+    socket.broadcast.emit('isXTurn', isXTurn)
+    // socket.local.emit('isXTurn', isXTurn) for local testing
+  });
+  let isXTurn = true
+  //socket.broadcast.emit('isXTurn', isXTurn)
+});
+
+
+
+httpServer.listen(3000, () => {
+  console.log('server running at http://localhost:3000')
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import express from 'express';
+import { createServer } from 'node:http';
+import { Server } from 'socket.io';
+
+const app = express();
+const server = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173"
+  }
+});
+
+
+// const path = require('path');
+// const http = require('http');
+// app.use(express.static(path.resolve('')));
+
+app.get('/', (req, res) => {
+  res.sendFile(new URL('../../client/src/main.tsx', import.meta.url).pathname);
+  console.log('hello');
+});
+
+io.on('connection', (socket) => {
+  socket.on('tileClicked', (arg) => {
+    console.log(arg)
+  });
+});
+
+server.listen(3000, () => {
+  console.log('server running at http://localhost:3000');
+});

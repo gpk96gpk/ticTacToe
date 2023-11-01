@@ -5,6 +5,6 @@ const server = createServer(app);
 app.get('/', (req, res) => {
     res.sendFile(new URL('./index.html', import.meta.url).pathname);
 });
-server.listen(3000, () => {
-    console.log('server running at http://localhost:3000');
+server.listen(5173, () => {
+    console.log('server running at http://localhost:5173');
 });
