@@ -2,8 +2,8 @@ import {createContext, useState} from 'react';
 import { io } from 'socket.io-client';
 import { TicTacToeContextProps } from '../types/tictactoe';
 
-const socket = io()
-// const socket = io("http://localhost:3000")
+
+const socket = io("http://localhost:3000")
 
 export const TicTacToeContext = createContext({
 
