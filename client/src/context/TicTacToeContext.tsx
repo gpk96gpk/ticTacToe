@@ -20,16 +20,12 @@ export const TicTacToeContextProvider: React.FC<TicTacToeContextProps> = (props)
     const handleClick = () => {
         setIsClicked(true)
         setIsXTurn(!isXTurn)
-        console.log(isClicked)
         //socket.emit('tileClicked', isClicked)
-        console.log(isXTurn)
 
     }
     //make isXTurn from socket.on to log turn
     socket.on('changeTurn', (isPlayerTurn) => {
-        console.log(isPlayerTurn)
         setIsXTurn(isPlayerTurn);
-        console.log(isXTurn)
     })
 
     return (

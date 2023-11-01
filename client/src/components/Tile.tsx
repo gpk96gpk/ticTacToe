@@ -12,15 +12,11 @@ const Tile = ({ id, children }: TileProps) => {
     const [isClicked, setIsClicked] = useState(false);
     const [letterIcon, setLetterIcon] = useState('hidden');
 
-    console.log('isXTurn'+isXTurn);
     useEffect(() => {
         socket.on('turnChange', (arg) => {
             if (isClicked) {
                 setLetterIcon(arg ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
-                console.log(arg)
             }
-            console.log('isXTurn'+arg);
-            console.log('isXTurn'+isXTurn);
         });
 
         // if (isClicked) {

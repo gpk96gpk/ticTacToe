@@ -9,13 +9,15 @@ export type VisibleLetter = 'x-is-visible' | 'o-is-visible' | 'hidden' | 'displa
 
 export type TicTacToeContextProps = {
     children: React.ReactNode;
+    setIsClicked: () => void;
+    setIsXTurn: () => void;
 }
 
 export interface TicTacToeContextState {
     isXTurn: boolean;
-    setIsXTurn: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsXTurn: () => void;
     isClicked: boolean;
-    setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsClicked: () => void;
     handleClick: () => void;
     
 }
