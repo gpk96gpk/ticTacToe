@@ -19,21 +19,15 @@ const Tile = ({ id, children }: TileProps) => {
             }
         });
 
-        // if (isClicked) {
-        //     setLetterIcon(isXTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
-        //     console.log(isXTurn)
-        // }
         return () => {
             socket.off('turnChange');
         };
+        
     }, [isClicked, isXTurn]);
 
     const handleClick = () => {
         if (!isClicked) {
-            console.log('isClicked'+isClicked);
-            
             setIsClicked(true);
-            // setIsXTurn(!isXTurn);
             setLetterIcon(isXTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
             socket.emit('tileClicked', true);
         }
