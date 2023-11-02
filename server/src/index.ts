@@ -24,11 +24,13 @@ let isXTurn: Boolean;
 io.on('connection', (socket) => {
   isXTurn = true;
   console.log('a user connected')
-  socket.on('tileClicked', () => {
-    console.log(isXTurn);
+  socket.on('tileClicked', (id) => {
+    console.log(id);
+    console.log(isXTurn)
     socket.emit('turnChange', isXTurn);
     isXTurn = !isXTurn;
   });
+  
 });
 
 httpServer.listen(3000, () => {

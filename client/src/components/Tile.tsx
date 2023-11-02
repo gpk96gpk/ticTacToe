@@ -18,7 +18,6 @@ const Tile = ({ id, children }: TileProps) => {
                 setLetterIcon(arg ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
             }
         });
-
         return () => {
             socket.off('turnChange');
         };
@@ -28,7 +27,8 @@ const Tile = ({ id, children }: TileProps) => {
     const handleClick = () => {
         if (!isClicked) {
             setIsClicked(true);
-            socket.emit('tileClicked', true);
+            socket.emit('tileClicked', id);
+            console.log(id)
         }
         
     }
