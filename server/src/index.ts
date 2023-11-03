@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
   isXTurn = true;
   let gameOver = false;
   gameState = ['','','','','','','','',''];
-  console.log('a user connected')
+  console.log(`User connected with ID: ${socket.id}`);
     socket.on('tileClicked', (id) => {
       gameState[id] = isXTurn ? 'X' : 'O';
       for (let i = 0; i < victoryConditions.length; i++) {
