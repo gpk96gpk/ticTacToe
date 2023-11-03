@@ -1,10 +1,10 @@
 type GameOverProps = {
     isGameOver: boolean;
-    isXTurn: boolean;
+    gameWinner: string | null;
   };
 
 
-const GameOver: React.FC<GameOverProps> = ({ isGameOver, isXTurn }) => {
+const GameOver: React.FC<GameOverProps> = ({ isGameOver, gameWinner }) => {
     let gameOverClass = "display-none";
     if (isGameOver) {
         gameOverClass = "gameOver";
@@ -12,7 +12,7 @@ const GameOver: React.FC<GameOverProps> = ({ isGameOver, isXTurn }) => {
     return (
     <div className={gameOverClass}>
         <h1>Game Over</h1>
-        <h1>{isXTurn ? "X" : "O"} Wins!</h1>
+        <h1>{gameWinner} Wins!</h1>
     </div>
     )
 }

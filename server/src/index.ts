@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
       socket.emit('turnChange', isXTurn);
       socket.broadcast.emit('turnChange', isXTurn);
       if (gameOver) {
-        isXTurn = null;
+        isXTurn = undefined;
       } else {
         isXTurn = !isXTurn;
       }
