@@ -10,16 +10,6 @@ const io = new Server(httpServer, {
   }
 });
 
-// const path = require('path');
-// const http = require('http');
-// app.use(express.static(path.resolve('')));
-
-// app.get('/', (req, res) => {
-//   res.sendFile(new URL('../../client/index.html', import.meta.url).pathname);
-// });
-
-
-// why wont the console log appear when i connect to the server?  
 let isXTurn: Boolean;
 io.on('connection', (socket) => {
   isXTurn = true;

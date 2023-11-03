@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface TileProps {
     id: number;
     children?: React.ReactNode;
@@ -5,19 +7,8 @@ export interface TileProps {
     handleClick: () => void;
 }
 
-export type VisibleLetter = 'x-is-visible' | 'o-is-visible' | 'hidden' | 'display-none'
-
 export type TicTacToeContextProps = {
     children: React.ReactNode;
-    setIsClicked: () => void;
-    setIsXTurn: () => void;
-}
-
-export interface TicTacToeContextState {
-    isXTurn: boolean;
-    setIsXTurn: () => void;
-    isClicked: boolean;
-    setIsClicked: () => void;
-    handleClick: () => void;
-    
+    setIsClicked: Dispatch<SetStateAction<boolean>>;
+    setIsXTurn: Dispatch<SetStateAction<boolean>>;
 }
