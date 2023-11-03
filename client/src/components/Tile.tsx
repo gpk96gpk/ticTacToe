@@ -14,8 +14,14 @@ const Tile = ({ id, children }: TileProps) => {
 
     useEffect(() => {
         socket.on('turnChange', (arg) => {
-            if (isClicked) {
+            console.log(arg)
+            if (arg === null) {
+                setLetterIcon('hidden');
+            }
+            if (isClicked && arg !== null) {
                 setLetterIcon(arg ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
+            } else {
+                setLetterIcon('hidden');
             }
         });
         return () => {
@@ -23,7 +29,7 @@ const Tile = ({ id, children }: TileProps) => {
         };
         
     }, [isClicked, isXTurn]);
-
+    
     const handleClick = () => {
         if (!isClicked) {
             setIsClicked(true);

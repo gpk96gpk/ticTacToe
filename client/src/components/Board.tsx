@@ -15,7 +15,6 @@ const Board = () => {
 
     return (
         <>
-            <h1>Tic Tac Toe</h1>
             <div className="board">
                 {tileStates.map((isClicked, index) => (
                     <Tile key={index} id={index} isClicked={isClicked} handleClick={() => handleTileClick(index)} />

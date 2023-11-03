@@ -113,7 +113,9 @@ i {
   height: 80px;
 }
 .gameOver {
-  display: none;
+  display: contents;
+  justify-content: center;
+  align-items: center;
 }
 .reset {
   display: none;
