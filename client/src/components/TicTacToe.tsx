@@ -22,15 +22,17 @@ const TicTacToe = () => {
     }, [gameOver, xTurn, winner]);
 
     useEffect(() => {
-        socket.on("gameOver", (arg) => {
+        const gameOver = (arg: React.SetStateAction<boolean>) => {
             setGameOver(arg);
             console.log("gameOver")
-        });
-        return () => { socket.off("gameOver") }  
-    }, []);
+        }
+
+        socket.on("gameOver", gameOver);
+        return () => { socket.off("gameOver", gameOver) }  
+    }, [gameOver]);
 
     useEffect(() => {
-        socket.on("turnChange", (arg) => {
+        const turnChange = (arg: React.SetStateAction<boolean>) => {
             console.log("turnChange")
             console.log(arg)
             setXTurn(arg);
@@ -42,8 +44,9 @@ const TicTacToe = () => {
             } else {
                 setLetterIcon('hidden');
             }
-        });
-        return () => { socket.off("turnChange") }
+        }
+        socket.on("turnChange", turnChange);
+        return () => { socket.off("turnChange", turnChange) }
     }, [gameOver, isClicked, xTurn]);
 
     return (

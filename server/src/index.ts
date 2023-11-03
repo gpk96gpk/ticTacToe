@@ -30,29 +30,28 @@ io.on('connection', (socket) => {
   let gameOver = false;
   gameState = ['','','','','','','','',''];
   console.log(`User connected with ID: ${socket.id}`);
-    socket.on('tileClicked', (id) => {
-      gameState[id] = isXTurn ? 'X' : 'O';
-      for (let i = 0; i < victoryConditions.length; i++) {
-        const condition = victoryConditions[i];
-        if (gameState[condition[0]] === gameState[condition[1]] && gameState[condition[1]] === gameState[condition[2]] && gameState[condition[0]] !== '') {
-          console.log('game over');
-          socket.broadcast.emit('gameOver', true);
-          gameOver = true;
-        }
+  socket.on('tileClicked', (id) => {
+    gameState[id] = isXTurn ? 'X' : 'O';
+    for (let i = 0; i < victoryConditions.length; i++) {
+      const condition = victoryConditions[i];
+      if (gameState[condition[0]] === gameState[condition[1]] && gameState[condition[1]] === gameState[condition[2]] && gameState[condition[0]] !== '') {
+        console.log('game over');
+        socket.broadcast.emit('gameOver', true);
+        gameOver = true;
       }
-      console.log(id);
-      console.log(isXTurn);
-      console.log('gameOver?'+gameOver);
-      socket.emit('turnChange', isXTurn);
-      socket.broadcast.emit('turnChange', isXTurn);
-      if (gameOver) {
-        isXTurn = undefined;
-      } else {
-        isXTurn = !isXTurn;
-      }
-    });
-    
+    }
+    console.log(id);
+    console.log(isXTurn);
+    console.log('gameOver?'+gameOver);
+    socket.emit('turnChange', isXTurn);
+    socket.broadcast.emit('turnChange', isXTurn);
+    if (gameOver) {
+      isXTurn = undefined;
+    } else {
+      isXTurn = !isXTurn;
+    }
   });
+});
 
 httpServer.listen(3000, () => {
   console.log('server running at http://localhost:3000');
