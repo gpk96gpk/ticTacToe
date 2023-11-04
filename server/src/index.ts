@@ -14,6 +14,7 @@ type GameStateType = [string, string, string, string, string, string, string, st
 
 let isXTurn: Boolean;
 let gameState:GameStateType = ['','','','','','','','',''];
+const players = {};
 const victoryConditions = [
   [0, 1, 2],
   [3, 4, 5],
@@ -29,7 +30,18 @@ io.on('connection', (socket) => {
   isXTurn = true;
   let gameOver = false;
   gameState = ['','','','','','','','',''];
+
   console.log(`User connected with ID: ${socket.id}`);
+  
+  //console.log(socket.rooms); // Set { <socket.id> }
+  socket.join("room1");
+  //console.log(socket.rooms);
+
+  if (!players[socket.id]) {
+    players[socket.id] = socket.id;
+    //console.log(players);
+  }
+
   socket.on('tileClicked', (id) => {
     gameState[id] = isXTurn ? 'X' : 'O';
     for (let i = 0; i < victoryConditions.length; i++) {

@@ -1,9 +1,9 @@
 import { TileProps } from "../types/tictactoe"
 
-const Tile = ({ id, letterIcon, handleClick, children }: TileProps) => {
+const Tile = ({ onClick, id, letterIcon, children }: TileProps) => {
     
     return (
-        <div id={String(id)} className={'tile'} onClick={handleClick}>
+        <div id={String(id)} className={'tile'} onClick={onClick}>
             <i className={ letterIcon }></i>
             {children}
         </div>

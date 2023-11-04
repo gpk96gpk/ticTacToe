@@ -5,9 +5,10 @@ export interface TileProps {
     letterIcon: string;
     key: number;
     children?: React.ReactNode;
-    isClicked: boolean | null | undefined;
+    isClicked?: boolean | null | undefined;
     setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
-    handleClick: React.MouseEventHandler<HTMLDivElement>;
+    handleClick?: React.MouseEventHandler<HTMLDivElement>;
+    onClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export type BoardTypes = {
@@ -15,6 +16,8 @@ export type BoardTypes = {
     isClicked?: boolean | null;
     setIsClicked: Dispatch<React.SetStateAction<boolean>>;
     gameOver: boolean | null;
+    tileStates: string[];
+    onTileClick: (index: number) => void;
 }
 
 export type TicTacToeContextProps = {
