@@ -25,6 +25,16 @@ const TicTacToe = () => {
     const [tileStates, setTileStates] = useState(Array(9).fill(null));
     const [clickedIndex, setClickedIndex] = useState<number | null>(null);
     const [gameState, setGameState] = useState<GameStateType>(['', '', '', '', '', '', '', '', '']);
+    const [playerNumber, setPlayerNumber] = useState<number | null>(null);
+    
+    
+    useEffect(() => {
+        socket.on('playerNumber', (number: number) => {
+            setPlayerNumber(number);
+            console.log("playerNumber", number);
+        });
+        return () => { socket.off('playerNumber'); }
+    }, []);
 
     useEffect(() => {
         const gameOver = (arg: React.SetStateAction<boolean>) => {
@@ -38,20 +48,22 @@ const TicTacToe = () => {
 
 
     const handleTileClick = (index: number) => {
-        if (gameState[index] !== '' || gameOver) {
-            return;
-          } 
-        setClickedIndex(index);
-        const newGameState: GameStateType = [...gameState];
-        console.log(gameState)
-        console.log(xTurn)
-        socket.emit('tileClicked', xTurn);
-        console.log('before'+index)
-        newGameState[index] = xTurn ? 'X' : 'O';
-        console.log('after'+index)
-        console.log(newGameState[index])
-        socket.emit('gameState', newGameState);
-        setXTurn(!xTurn); 
+        if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
+            if (gameState[index] !== '' || gameOver) {
+                return;
+            } 
+            setClickedIndex(index);
+            const newGameState: GameStateType = [...gameState];
+            console.log(gameState)
+            console.log(xTurn)
+            socket.emit('tileClicked', xTurn);
+            console.log('before'+index)
+            newGameState[index] = xTurn ? 'X' : 'O';
+            console.log('after'+index)
+            console.log(newGameState[index])
+            socket.emit('gameState', newGameState);
+            setXTurn(!xTurn); 
+        }
     }
 
     useEffect(() => {

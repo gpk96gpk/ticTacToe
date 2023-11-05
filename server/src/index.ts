@@ -11,21 +11,25 @@ const io = new Server(httpServer, {
 });
 
 
+let players = [];
+
 io.on('connection', (socket) => {
-  let players = [];
   let xTurn = true;
   let gameOver = false;
+  if (!players.includes(socket.id)) {
+    players.push(socket.id);
+  }
   let playerNumber = players.indexOf(socket.id) + 1;
-  console.log(`Socket ${socket.id} connected.`);
+  socket.emit('playerNumber', playerNumber);
 
+  console.log(`Socket ${playerNumber} connected.`);
+  
   socket.on('error', (error) => {
     console.error('Socket.IO error:', error);
   });
   console.log(socket.rooms);
   socket.join("room1");
   console.log(socket.rooms);
-
-  players.push(socket.id);
   
 
   socket.on('tileState', (tileState) => {
@@ -37,12 +41,12 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('gameState', gameState);
   } );
   socket.on('tileClicked', (xTurn) => {
-    //if ((playerNumber === 1 && xTurn && !gameOver) || (playerNumber === 2 && !xTurn && !gameOver)) {
-      //socket.broadcast.emit('tileClicked', tiles);
+    let playerNumber = players.indexOf(socket.id) + 1;
+    if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
       console.log('tile clicked'+xTurn);
-      xTurn = !xTurn; // Switch turns
+      xTurn = !xTurn; 
       socket.broadcast.emit('turn', xTurn);
-    //}
+    }
   });
   socket.on('gameOver', (isGameOver) => {
     console.log('game over');
@@ -50,12 +54,12 @@ io.on('connection', (socket) => {
   });
   socket.on('reset', () => {
     console.log('reset');
-    //xTurn = true; // Reset turns
     gameOver = false; 
     socket.broadcast.emit('reset');
   });
   socket.on('disconnect', () => {
-    players = players.filter(player => player !== socket); // Remove player on disconnect
+    players = players.filter(player => player !== socket);
+    players = [];
   });
 });
 
