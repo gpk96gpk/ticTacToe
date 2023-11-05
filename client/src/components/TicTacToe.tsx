@@ -37,10 +37,12 @@ const TicTacToe = () => {
     }, [gameOver]);
 
 
-    const handleTileClick = (index: number) => { 
+    const handleTileClick = (index: number) => {
+        if (gameState[index] !== '' || gameOver) {
+            return;
+          } 
         setClickedIndex(index);
         const newGameState: GameStateType = [...gameState];
-        //setGameState(newGameState);
         console.log(gameState)
         console.log(xTurn)
         socket.emit('tileClicked', xTurn);
@@ -49,18 +51,9 @@ const TicTacToe = () => {
         console.log('after'+index)
         console.log(newGameState[index])
         socket.emit('gameState', newGameState);
-        setGameState(newGameState);
         setXTurn(!xTurn); 
     }
-    useEffect(() => {
-        const handleGameState = (arg: GameStateType) => {
-            setGameState([...arg]);
-            console.log("gameState"+arg)
-        }
 
-        socket.on('gameState', handleGameState);
-        return () => { socket.off('gameState', handleGameState) }
-    }, []);
     useEffect(() => {
         const turnChange = (arg: boolean | ((prevState: boolean | null) => boolean | null) | null) => {
             setXTurn(arg);
@@ -105,9 +98,6 @@ const TicTacToe = () => {
             [0, 4, 8],
             [2, 4, 6]
         ];
-        if (clickedIndex !== null) {
-            gameState[clickedIndex] = !xTurn ? 'X' : 'O';
-        }
         for (let i = 0; i < victoryConditions.length; i++) {
             const condition = victoryConditions[i];
         
@@ -144,7 +134,23 @@ const TicTacToe = () => {
         }
         
     }, [tileStates, letterIcon, clickedIndex])
-    
+    useEffect(() => {
+        const handleGameState = (arg: GameStateType) => {
+            setGameState([...arg]);
+            console.log("gameState"+arg)
+        }
+
+        socket.on('gameState', handleGameState);
+        return () => { socket.off('gameState', handleGameState) }
+    }, []);
+    useEffect(() => {
+        if (letterIcon !== null && clickedIndex !== null && gameState[clickedIndex] === '') {
+            const newGameState = [...gameState];
+            newGameState[clickedIndex] = letterIcon;
+            setGameState(newGameState);
+            socket.emit('gameState', newGameState);
+        }
+    }, [gameState, letterIcon, clickedIndex]);    
     useEffect(() => {
         if (gameOver && winner === null) {
             setWinner(!xTurn ? 'X' : 'O');

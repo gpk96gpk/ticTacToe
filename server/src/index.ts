@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   socket.on('error', (error) => {
     console.error('Socket.IO error:', error);
   });
-  console.log(socket.rooms); // Set { <socket.id> }
+  console.log(socket.rooms);
   socket.join("room1");
   console.log(socket.rooms);
 

@@ -12,4 +12,3 @@ const Tile = ({ onClick, id, letterIcon, isClicked, children }: TileProps) => {
 }
 
 export default Tile
-    // const [isClicked, setIsClicked] = useState(false)
