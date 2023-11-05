@@ -1,7 +1,6 @@
 import { SetStateAction, useEffect, useState } from "react"
 import Board from "./Board"
 import GameOver from "./GameOver"
-import Reset from "./Reset"
 import { io } from "socket.io-client"
 import { GameStateType } from "../types/tictactoe"
 
@@ -37,24 +36,41 @@ const TicTacToe = () => {
         return () => { socket.off("gameOver", gameOver) }  
     }, [gameOver]);
 
+
+    const handleTileClick = (index: number) => { 
+        setClickedIndex(index);
+        const newGameState: GameStateType = [...gameState];
+        //setGameState(newGameState);
+        console.log(gameState)
+        console.log(xTurn)
+        socket.emit('tileClicked', xTurn);
+        console.log('before'+index)
+        newGameState[index] = xTurn ? 'X' : 'O';
+        console.log('after'+index)
+        console.log(newGameState[index])
+        socket.emit('gameState', newGameState);
+        setGameState(newGameState);
+        setXTurn(!xTurn); 
+    }
+    useEffect(() => {
+        const handleGameState = (arg: GameStateType) => {
+            setGameState([...arg]);
+            console.log("gameState"+arg)
+        }
+
+        socket.on('gameState', handleGameState);
+        return () => { socket.off('gameState', handleGameState) }
+    }, []);
     useEffect(() => {
         const turnChange = (arg: boolean | ((prevState: boolean | null) => boolean | null) | null) => {
             setXTurn(arg);
+            console.log("turnChange")
+            console.log('turnChange'+arg)
         }
     
-        socket.on("turnChange", turnChange);
-        return () => { socket.off("turnChange", turnChange) }
+        socket.on("turn", turnChange);
+        return () => { socket.off("turn", turnChange) }
     }, []);
-    const handleTileClick = (index: number) => { 
-        setClickedIndex(index);
-        setXTurn(!xTurn); 
-        const newGameState: GameStateType = [...gameState];
-        newGameState[index] = xTurn ? 'X' : 'O';
-        setGameState(newGameState);
-        console.log(gameState)
-        socket.emit('tileClicked', xTurn);
-        
-    }
     useEffect(() => {
         const gameOver = (arg: React.SetStateAction<boolean>) => {
             setGameOver(arg);
@@ -116,7 +132,7 @@ const TicTacToe = () => {
         };
     }, []);
     useEffect(() => {
-        const newTileStates = [...tileStates];
+        const newTileStates: string[] = [...tileStates];
         if (letterIcon !== null && clickedIndex !== null && newTileStates[clickedIndex] === null ) {
             console.log(tileStates)
             const newTileStates = [...tileStates];
@@ -135,11 +151,40 @@ const TicTacToe = () => {
         }
     }, [winner, xTurn, gameOver]);
 
+    
+    const handleReset = () => {
+        setTileStates(Array(9).fill(null));
+        setGameState(['', '', '', '', '', '', '', '', '']);
+        setGameOver(false);
+        setXTurn(true);
+        setClickedIndex(null);
+        setWinner(null);
+        setLetterIcon('fa-solid fa-x fa-5x');
+        setIsClicked(false);
+
+        console.log("reset")
+        if (gameOver) {
+            socket.emit('reset');
+        }
+    };
+
+    useEffect(() => {
+        const handleResetEvent = () => {
+            console.log('reset');
+            handleReset();
+        };
+    
+        socket.on('reset', handleResetEvent);
+
+        return () => {
+            socket.off('reset', handleResetEvent);
+        };
+    }, []);
+    
     return (
     <div className="ticTacToe">
         <h1>Tic Tac Toe</h1>
-        <GameOver isGameOver={gameOver} gameWinner={winner}/>
-        <Reset />
+        <GameOver handleReset={handleReset} isGameOver={gameOver} gameWinner={winner}/>
         <Board isClicked={isClicked} tileStates={tileStates} onTileClick={handleTileClick} letterIcon={letterIcon} setIsClicked={setIsClicked} gameOver={gameOver}/>
     </div>
     )

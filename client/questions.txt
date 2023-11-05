@@ -64,3 +64,6 @@ when gameOver is true trigger an emit event to server
 when server gets game over broadcast to the room
 when players in the room recieve the gameover emit from server triggers the gameOver and Reset component to become visible
 Reset button resets the gamestate isXturn and isClicked for the tile basically all the tile props
+
+
+handle the turnState like reset send it to the server to emit then reuploads

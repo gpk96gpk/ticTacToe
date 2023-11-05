@@ -20,6 +20,12 @@ export type BoardTypes = {
     onTileClick: (index: number) => void;
 }
 
+export type GameOverTypes = {
+    isGameOver: boolean;
+    gameWinner: string | null;
+    handleReset: () => void;
+};
+
 export type GameStateType = [string, string, string, string, string, string, string, string, string];
 
 export type TicTacToeContextProps = {
