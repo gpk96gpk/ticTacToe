@@ -45,3 +45,22 @@ if XTurn true only player1 can click and make changes
 create array that checks for game winning matches either by hard coding x and o's or matching array values
 
 console.log the map in board component to see how the array is structured for the game winning conditions
+
+
+Move gamestate and winning conditions into the board or ticTacToe.tsx and pass props down
+
+Once GameState is moved to client side set up useeffect socket emit that will pass tiles array to server
+
+When server listens to the emit for tile array send it back to the client and trigger the board to rerender
+the tiles in the map method on board by passing the array down as props
+
+Create Lobby room
+if player is first to join they can play when xTurn is true
+creat room button will generate a room with random numbers
+on the board send that room number as props to be used in a display message until another player joins the lobby
+when 2nd player joins remove the message and start game
+On creation of the second profile trigger start of game
+when gameOver is true trigger an emit event to server
+when server gets game over broadcast to the room
+when players in the room recieve the gameover emit from server triggers the gameOver and Reset component to become visible
+Reset button resets the gamestate isXturn and isClicked for the tile basically all the tile props

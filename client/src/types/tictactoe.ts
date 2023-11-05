@@ -20,6 +20,8 @@ export type BoardTypes = {
     onTileClick: (index: number) => void;
 }
 
+export type GameStateType = [string, string, string, string, string, string, string, string, string];
+
 export type TicTacToeContextProps = {
     children: React.ReactNode;
     setIsClicked: Dispatch<SetStateAction<boolean>>;
