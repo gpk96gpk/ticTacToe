@@ -1,22 +1,35 @@
-import { SetStateAction, useEffect, useState } from "react"
+import { SetStateAction, useEffect, useState, useContext } from "react"
+//import { SocketContext } from '../context/SocketContext';
 import Board from "./Board"
 import GameOver from "./GameOver"
-import { io } from "socket.io-client"
 import { GameStateType } from "../types/tictactoe"
+//import { Socket } from "socket.io-client";
+import { SocketContext } from "../context/SocketContext";
 
-const socket = io("http://localhost:3001")
-
-socket.on('connect', () => {
-    console.log('Connected to the server');
-  });
-  
-  socket.on('connect_error', (error) => {
-    console.error('Connection error:', error);
-  });
 
 
 
 const TicTacToe = () => {
+    const socket = useContext(SocketContext);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('connect', () => {
+              console.log('Connected to the server');
+            });    
+        }
+        if (socket) {
+            socket.on('connect_error', (error: Error) => {
+                console.error('Connection error:', error);
+            });
+        }
+        return () => {
+        if (socket) {
+            socket.off('connect');
+            socket.off('connect_error');
+        }  
+        };
+      }, [socket]);
     const [gameOver, setGameOver] = useState(false);
     const [xTurn, setXTurn] = useState<boolean | null>(true);
     const [letterIcon, setLetterIcon] = useState('fa-solid fa-x fa-5x');
@@ -29,22 +42,49 @@ const TicTacToe = () => {
     
     
     useEffect(() => {
-        socket.on('playerNumber', (number: number) => {
-            setPlayerNumber(number);
-            console.log("playerNumber", number);
-        });
-        return () => { socket.off('playerNumber'); }
-    }, []);
-
+        if (socket) {
+          socket.on('connect', () => {
+            console.log('Connected to the server');
+          });
+      
+          socket.on('connect_error', (error: Error) => {
+            console.error('Connection error:', error);
+          });
+      
+          // Clean up the event listeners when the component unmounts
+          return () => {
+            socket.off('connect');
+            socket.off('connect_error');
+          };
+        }
+      }, [socket]);
+    useEffect(() => {
+        if (socket) {
+            socket.on('playerNumber', (number: number) => {
+                setPlayerNumber(number);
+                console.log("playerNumber", number);
+            });
+        }
+        return () => { 
+            if (socket) {
+                socket.off('playerNumber'); 
+            }
+        }
+    }, [socket]);      
     useEffect(() => {
         const gameOver = (arg: React.SetStateAction<boolean>) => {
             setGameOver(arg);
             console.log("gameOver")
         }
-
-        socket.on("gameOver", gameOver);
-        return () => { socket.off("gameOver", gameOver) }  
-    }, [gameOver]);
+        if (socket) {
+            socket.on("gameOver", gameOver);
+        }
+        return () => { 
+            if (socket) {
+                socket.off("gameOver", gameOver)
+            } 
+        }  
+    }, [gameOver, socket]);
 
 
     const handleTileClick = (index: number) => {
@@ -56,12 +96,16 @@ const TicTacToe = () => {
             const newGameState: GameStateType = [...gameState];
             console.log(gameState)
             console.log(xTurn)
-            socket.emit('tileClicked', xTurn);
+            if (socket) {
+                socket.emit('tileClicked', xTurn);
+            }            
             console.log('before'+index)
             newGameState[index] = xTurn ? 'X' : 'O';
             console.log('after'+index)
             console.log(newGameState[index])
-            socket.emit('gameState', newGameState);
+            if (socket) {
+                socket.emit('gameState', newGameState);
+            }            
             setXTurn(!xTurn); 
         }
     }
@@ -72,18 +116,30 @@ const TicTacToe = () => {
             console.log("turnChange")
             console.log('turnChange'+arg)
         }
-    
-        socket.on("turn", turnChange);
-        return () => { socket.off("turn", turnChange) }
-    }, []);
+        if (socket) {
+            socket.on("turn", turnChange);
+        }
+        return () => {
+            if (socket) {
+                socket.off("turn", turnChange)
+            }           
+        }
+    }, [socket]);
     useEffect(() => {
         const gameOver = (arg: React.SetStateAction<boolean>) => {
             setGameOver(arg);
             console.log("gameOver")
         }
-        socket.on("gameOver", gameOver);
-        return () => { socket.off("gameOver", gameOver) }  
-    }, [gameOver]);
+        if (socket) {
+            socket.on("gameOver", gameOver);
+        }
+
+        return () => {
+            if (socket) {
+                socket.off("gameOver", gameOver) 
+            } 
+        }  
+    }, [gameOver, socket]);
     useEffect(() => {
         if (gameOver) {
             setXTurn(null);
@@ -115,24 +171,29 @@ const TicTacToe = () => {
         
             if (gameState[condition[0]] === gameState[condition[1]] && gameState[condition[1]] === gameState[condition[2]] && gameState[condition[0]] !== '') {
                 console.log('game over');
-                socket.emit('gameOver', true);
+                if (socket) {
+                    socket.emit('gameOver', true);
+                }
                 setGameOver(true);
             }
         }
-    }, [clickedIndex, xTurn, isClicked, gameState]);
+    }, [clickedIndex, xTurn, isClicked, gameState, socket]);
     
     useEffect(() => {
         const handleTileState = (newTileStates: SetStateAction<string[]>) => {
             setTileStates(newTileStates);
         };
-    
-        socket.on('tileState', handleTileState);
+        if (socket) {
+            socket.on('tileState', handleTileState);
+        }
     
         // Clean up the event listener when the component unmounts
         return () => {
-            socket.off('tileState', handleTileState);
+            if (socket) {
+                socket.off('tileState', handleTileState);
+            }
         };
-    }, []);
+    }, [socket]);
     useEffect(() => {
         const newTileStates: string[] = [...tileStates];
         if (letterIcon !== null && clickedIndex !== null && newTileStates[clickedIndex] === null ) {
@@ -142,27 +203,36 @@ const TicTacToe = () => {
                 newTileStates[clickedIndex] = letterIcon;
             }
             setTileStates(newTileStates);
-            socket.emit('tileState', newTileStates);
+            if (socket) {
+                socket.emit('tileState', newTileStates);
+            }
         }
         
-    }, [tileStates, letterIcon, clickedIndex])
+    }, [tileStates, letterIcon, clickedIndex, socket])
     useEffect(() => {
         const handleGameState = (arg: GameStateType) => {
             setGameState([...arg]);
             console.log("gameState"+arg)
         }
-
-        socket.on('gameState', handleGameState);
-        return () => { socket.off('gameState', handleGameState) }
-    }, []);
+        if (socket) {
+            socket.on('gameState', handleGameState);
+        }
+        return () => {
+            if (socket) {
+                socket.off('gameState', handleGameState) 
+            } 
+        }
+    }, [socket]);
     useEffect(() => {
         if (letterIcon !== null && clickedIndex !== null && gameState[clickedIndex] === '') {
             const newGameState = [...gameState];
             newGameState[clickedIndex] = letterIcon;
             setGameState(newGameState);
-            socket.emit('gameState', newGameState);
+            if (socket) {
+                socket.emit('gameState', newGameState);
+            }
         }
-    }, [gameState, letterIcon, clickedIndex]);    
+    }, [gameState, letterIcon, clickedIndex, socket]);    
     useEffect(() => {
         if (gameOver && winner === null) {
             setWinner(!xTurn ? 'X' : 'O');
@@ -181,7 +251,7 @@ const TicTacToe = () => {
         setIsClicked(false);
 
         console.log("reset")
-        if (gameOver) {
+        if (gameOver && socket) {
             socket.emit('reset');
         }
     };
@@ -191,11 +261,14 @@ const TicTacToe = () => {
             console.log('reset');
             handleReset();
         };
-    
-        socket.on('reset', handleResetEvent);
+        if (socket) {
+            socket.on('reset', handleResetEvent);
+        }
 
         return () => {
-            socket.off('reset', handleResetEvent);
+            if (socket) {
+                socket.off('reset', handleResetEvent);
+            }
         };
     }, []);
     

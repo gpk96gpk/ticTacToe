@@ -1,10 +1,32 @@
 import express from 'express';
 import { createServer } from "http";
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
+interface ServerToClientEvents {
+  noArg: () => void;
+  basicEmit: (a: number, b: string, c: Buffer) => void;
+  withAck: (d: string, callback: (e: number) => void) => void;
+}
 
+interface ClientToServerEvents {
+  hello: () => void;
+}
+
+interface InterServerEvents {
+  ping: () => void;
+}
+
+interface SocketData {
+  name: string;
+  age: number;
+}
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const io = new Server<
+ClientToServerEvents,
+ServerToClientEvents,
+InterServerEvents,
+SocketData
+>(httpServer, {
   cors: {
     origin: "http://localhost:5173",
   }
@@ -13,7 +35,7 @@ const io = new Server(httpServer, {
 
 let players = [];
 
-io.on('connection', (socket) => {
+io.on('connection', (socket: Socket) => {
   let xTurn = true;
   let gameOver = false;
   if (!players.includes(socket.id)) {

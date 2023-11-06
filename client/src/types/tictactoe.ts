@@ -26,7 +26,7 @@ export type GameOverTypes = {
     handleReset: () => void;
 };
 
-export type GameStateType = [string, string, string, string, string, string, string, string, string];
+export type GameStateType = [string, string, string, string, string, string, string, string, string] | string[];
 
 export type TicTacToeContextProps = {
     children: React.ReactNode;
