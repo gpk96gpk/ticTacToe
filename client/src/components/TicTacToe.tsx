@@ -270,6 +270,7 @@ const TicTacToe = () => {
                 socket.off('reset', handleResetEvent);
             }
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     
     return (
