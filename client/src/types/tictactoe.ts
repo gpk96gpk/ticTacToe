@@ -1,5 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
 
+export interface ConnectionManagerProps {
+
+}
+
 export interface TileProps {
     id?: number;
     letterIcon: string;
@@ -12,6 +16,8 @@ export interface TileProps {
 }
 
 export type BoardTypes = {
+    gameState: string[];
+    tileState: string[];
     letterIcon: string;
     isClicked?: boolean | null;
     setIsClicked: Dispatch<React.SetStateAction<boolean>>;
@@ -27,6 +33,19 @@ export type GameOverTypes = {
 };
 
 export type GameStateType = [string, string, string, string, string, string, string, string, string] | string[];
+
+
+export interface ServerToClientEvents {
+    noArg: () => void;
+    basicEmit: (a: number, b: string, c: Buffer) => void;
+    withAck: (d: string, callback: (e: number) => void) => void;
+  }
+  
+export interface ClientToServerEvents {
+    hello: () => void;
+}
+
+
 
 export type TicTacToeContextProps = {
     children: React.ReactNode;

@@ -33,55 +33,65 @@ SocketData
 });
 
 
-let players = [];
+let players = {};
+const rooms = {};
 
 io.on('connection', (socket: Socket) => {
-  let xTurn = true;
-  let gameOver = false;
-  if (!players.includes(socket.id)) {
-    players.push(socket.id);
-  }
-  let playerNumber = players.indexOf(socket.id) + 1;
-  socket.emit('playerNumber', playerNumber);
+  socket.on('createRoom', (roomCode) => {
+    rooms[roomCode] = [socket.id];
+    players[socket.id] = { roomCode, playerNumber: 1 };
+    rooms[roomCode].xTurn = true;
+    rooms[roomCode].gameOver = false;
+    socket.emit('playerNumber', 1);
+  });
+  socket.on('joinRoom', (roomCode) => {
+    socket.join(roomCode);
 
-  console.log(`Socket ${playerNumber} connected.`);
+    rooms[roomCode].push(socket.id);
+    const playerNumber = rooms[roomCode].length;
+    players[socket.id] = { roomCode, playerNumber };
+  
+    socket.emit('playerNumber', playerNumber);
+  });
   
   socket.on('error', (error) => {
     console.error('Socket.IO error:', error);
   });
-  console.log(socket.rooms);
-  socket.join("room1");
-  console.log(socket.rooms);
-  
+
 
   socket.on('tileState', (tileState) => {
-    console.log('tile state');
-    socket.broadcast.emit('tileState', tileState);
+    const roomCode = players[socket.id].roomCode;
+    console.log('tile state'+tileState);
+    socket.to(roomCode).emit('tileState', tileState);
   });
   socket.on('gameState', (gameState) => {
+    const roomCode = players[socket.id].roomCode;
     console.log('game state'+gameState);
-    socket.broadcast.emit('gameState', gameState);
-  } );
+    socket.to(roomCode).emit('gameState', gameState);
+  });
   socket.on('tileClicked', (xTurn) => {
-    let playerNumber = players.indexOf(socket.id) + 1;
+    const roomCode = players[socket.id].roomCode;
+    const playerNumber = players[socket.id].playerNumber;
+
     if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
+      console.log('player number'+playerNumber)
       console.log('tile clicked'+xTurn);
-      xTurn = !xTurn; 
-      socket.broadcast.emit('turn', xTurn);
+      xTurn = !xTurn;
+      socket.to(roomCode).emit('turn', xTurn);
     }
   });
   socket.on('gameOver', (isGameOver) => {
+    const roomCode = players[socket.id].roomCode;
     console.log('game over');
-    socket.broadcast.emit('gameOver', isGameOver);
+    rooms[roomCode].gameOver = isGameOver;
+    socket.to(roomCode).emit('gameOver', rooms[roomCode].gamOver);
   });
   socket.on('reset', () => {
+    const roomCode = players[socket.id].roomCode;
     console.log('reset');
-    gameOver = false; 
-    socket.broadcast.emit('reset');
-  });
-  socket.on('disconnect', () => {
-    players = players.filter(player => player !== socket);
-    players = [];
+    rooms[roomCode].gameOver = false; 
+    rooms[roomCode].xTurn = true;
+    socket.to(roomCode).emit('reset');
   });
 });
 

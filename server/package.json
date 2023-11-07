@@ -17,6 +17,7 @@
     "http-errors": "~1.6.3",
     "jade": "^0.29.0",
     "morgan": "~1.9.1",
+    "react-router-dom": "^6.18.0",
     "socket.io": "^4.7.2",
     "tsx": "^3.14.0"
   },
