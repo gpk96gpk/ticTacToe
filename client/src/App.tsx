@@ -6,7 +6,7 @@ import LobbyPage from './components/LobbyPage';
 import TicTacToe from './components/TicTacToe';
 
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('http://localhost:3001');
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('http://localhost:3000');
 
 function App() {
   return (

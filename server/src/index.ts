@@ -62,22 +62,22 @@ io.on('connection', (socket: Socket) => {
   socket.on('tileState', (tileState) => {
     const roomCode = players[socket.id].roomCode;
     console.log('tile state'+tileState);
-    socket.to(roomCode).emit('tileState', tileState);
+    socket.broadcast.emit('tileState', tileState);
   });
   socket.on('gameState', (gameState) => {
     const roomCode = players[socket.id].roomCode;
     console.log('game state'+gameState);
-    socket.to(roomCode).emit('gameState', gameState);
+    socket.broadcast.emit('gameState', gameState);
   });
   socket.on('tileClicked', (xTurn) => {
     const roomCode = players[socket.id].roomCode;
     const playerNumber = players[socket.id].playerNumber;
+    //xTurn = !xTurn;
 
     if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
       console.log('player number'+playerNumber)
       console.log('tile clicked'+xTurn);
-      xTurn = !xTurn;
-      socket.to(roomCode).emit('turn', xTurn);
+      socket.broadcast.emit('turn', xTurn);
     }
   });
   socket.on('gameOver', (isGameOver) => {
@@ -91,7 +91,7 @@ io.on('connection', (socket: Socket) => {
     console.log('reset');
     rooms[roomCode].gameOver = false; 
     rooms[roomCode].xTurn = true;
-    socket.to(roomCode).emit('reset');
+    socket.broadcast.emit('reset');
   });
 });
 
@@ -102,7 +102,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-httpServer.listen(3001, () => {
+httpServer.listen(3000, () => {
   console.log('server running at http://localhost:3001');
 });
 

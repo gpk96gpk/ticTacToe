@@ -87,42 +87,42 @@ const TicTacToe = () => {
 
     const handleTileClick = (index: number) => {
         console.log("playerNumber"+playerNumber)
+        console.log("xTurn"+xTurn)
         if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
             if (gameState[index] !== '' || gameOver) {
-                return;
-            } 
+                 return;
+            }  
             setClickedIndex(index);
             const newGameState: GameStateType = [...gameState];
+            newGameState[index] = xTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x';
             console.log(gameState)
             console.log(xTurn)
             if (socket) {
                 console.log('sentPlayerNumber'+playerNumber)
                 socket.emit('tileClicked', xTurn);
-            }            
-            console.log('before'+index)
-            newGameState[index] = xTurn ? 'X' : 'O';
-            console.log('after'+index)
-            console.log(newGameState[index])
+            }          
             if (socket) {
                 console.log("sentGameState"+newGameState)
                 socket.emit('gameState', newGameState);
-            }            
-            setXTurn(!xTurn); 
+            }         
+            setXTurn(!xTurn);
         }
     }
 
+
+
     useEffect(() => {
         const turnChange = (arg: boolean | ((prevState: boolean | null) => boolean | null) | null) => {
-            setXTurn(arg);
+            setXTurn(!arg);
             console.log("turnChange")
             console.log('turnChange'+arg)
         }
         if (socket) {
-            socket.on("turn", turnChange);
+            socket.on('turn', turnChange);
         }
         return () => {
             if (socket) {
-                socket.off("turn", turnChange)
+                socket.off('turn', turnChange)
             }           
         }
     }, [socket]);
@@ -198,6 +198,9 @@ const TicTacToe = () => {
     }, [socket, tileStates]);
     useEffect(() => {
         const newTileStates: string[] = [...tileStates];
+        console.log("newTileStates"+newTileStates)
+        console.log("letterIcon"+letterIcon)
+        console.log("clickedIndex"+clickedIndex)
         if (letterIcon !== null && clickedIndex !== null && newTileStates[clickedIndex] === '' ) {
             console.log(tileStates)
             const newTileStates = [...tileStates];
