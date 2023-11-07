@@ -69,20 +69,6 @@ const TicTacToe = () => {
             }
         }
     }, [socket]);      
-    useEffect(() => {
-        const gameOver = (arg: React.SetStateAction<boolean>) => {
-            setGameOver(arg);
-            console.log("gameOver")
-        }
-        if (socket) {
-            socket.on("gameOver", gameOver);
-        }
-        return () => { 
-            if (socket) {
-                socket.off("gameOver", gameOver)
-            } 
-        }  
-    }, [gameOver, socket]);
 
 
     const handleTileClick = (index: number) => {
@@ -176,9 +162,16 @@ const TicTacToe = () => {
                     socket.emit('gameOver', true);
                 }
                 setGameOver(true);
-            }
+            } else if (!gameState.includes('')) {
+                console.log('draw');
+                setWinner('Its a Draw')
+                if (socket) {
+                  socket.emit('draw', true);
+                }
+                setGameOver(true);
+              }
         }
-    }, [clickedIndex, xTurn, isClicked, gameState, socket]);
+    }, [clickedIndex, xTurn, isClicked, gameState, gameOver, socket]);
     
     useEffect(() => {
         const handleTileState = (newTileStates: SetStateAction<string[]>) => {
@@ -240,14 +233,26 @@ const TicTacToe = () => {
         }
     }, [gameState, letterIcon, clickedIndex, socket]);    
     useEffect(() => {
-        if (gameOver && winner === null) {
-            setWinner(!xTurn ? 'X' : 'O');
+        if (gameOver && winner === null) { 
+            let newWinner;
+                if (!xTurn) {
+                    newWinner = 'X Wins!'
+                } else if (xTurn) {
+                    newWinner = 'O Wins!'
+                } else {
+                    newWinner = 'Its a Draw';
+                }
+            
+            setWinner(newWinner);
         }
     }, [winner, xTurn, gameOver]);
 
     
     const handleReset = () => {
-        setTileStates(Array(9).fill(null));
+        if (gameOver && socket) {
+            socket.emit('reset');
+        }
+        setTileStates(Array(9).fill(''));
         setGameState(['', '', '', '', '', '', '', '', '']);
         setGameOver(false);
         setXTurn(true);
@@ -257,9 +262,6 @@ const TicTacToe = () => {
         setIsClicked(false);
 
         console.log("reset")
-        if (gameOver && socket) {
-            socket.emit('reset');
-        }
     };
 
     useEffect(() => {
@@ -276,8 +278,8 @@ const TicTacToe = () => {
                 socket.off('reset', handleResetEvent);
             }
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    
+    }, [socket]);
     
     return (
     <div className="ticTacToe">

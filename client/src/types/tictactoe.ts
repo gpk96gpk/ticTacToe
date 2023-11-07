@@ -16,12 +16,12 @@ export interface TileProps {
 }
 
 export type BoardTypes = {
-    gameState: string[];
-    tileState: string[];
+    gameState?: string[];
+    tileState?: string[];
     letterIcon: string;
     isClicked?: boolean | null;
     setIsClicked: Dispatch<React.SetStateAction<boolean>>;
-    gameOver: boolean | null;
+    gameOver: boolean ;
     tileStates: string[];
     onTileClick: (index: number) => void;
 }
