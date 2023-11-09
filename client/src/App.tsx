@@ -1,19 +1,14 @@
 import { io } from 'socket.io-client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-//import { useNavigate } from 'react-router-dom';
 import { SocketContext } from './context/SocketContext';
-//import { ServerToClientEvents, ClientToServerEvents } from './types/tictactoe';
 import LobbyPage from './components/LobbyPage';
 import TicTacToe from './components/TicTacToe';
 import { useEffect, useState } from 'react';
-import { GameStateType } from './types/tictactoe';
-
+import { GameStateType } from './types/clientTypes';
 
 const socket = io('http://localhost:3002');
 
-
 function App() {
-  //const { roomCode } = useParams();
   const [playerNumber, setPlayerNumber] = useState<number | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [xTurn, setXTurn] = useState<boolean | null>(true);
@@ -38,7 +33,6 @@ function App() {
   useEffect(() => {
     socket.on('joinRoom', (roomId) => {
       console.log(`Joined room ${roomId}`);
-      //navigate(`/game/${roomId}`);
     });
 
     return () => {
@@ -59,7 +53,6 @@ function App() {
       socket.off('connect');
       socket.off('connect_error');
     }
-
   }, []);
 
   useEffect(() => {
@@ -70,13 +63,11 @@ function App() {
     return () => {
       socket.off('disconnect');
     };
-
   }, []);
 
   useEffect(() => {
     socket.on('playerNumber', (number: number) => {
       setPlayerNumber(number);
-      console.log("playerNumber", number);
     });
 
     return () => {
@@ -86,82 +77,64 @@ function App() {
 
   useEffect(() => {
     const turnChange = (arg: boolean | ((prevState: boolean | null) => boolean | null) | null) => {
-      console.log('DEBUGturnChange' + arg)
       setXTurn(arg);
-      //console.log("turnChange")
     }
 
     socket.on('turn', turnChange);
 
     return () => {
-
       socket.off('turn', turnChange)
-
     }
   }, []);
 
   useEffect(() => {
     const handleTileState = (newTileStates: string[]) => {
-      console.log("DEBUGStileState" + tileStates)
       setTileStates([...newTileStates]);
     };
 
     socket.on('tileState', handleTileState);
 
-
-    // Clean up the event listener when the component unmounts
     return () => {
-
       socket.off('tileState', handleTileState);
-
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const handleGameState = (arg: GameStateType) => {
-      console.log("DEBUGgameState" + arg)
       setGameState([...arg]);
-      console.log("DEBUGgameState" + gameState)
     }
 
     socket.on('gameState', handleGameState);
 
     return () => {
-
       socket.off('gameState', handleGameState)
-
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const gameOver = (arg: React.SetStateAction<boolean>) => {
       setGameOver(arg);
-      console.log("gameOver")
     }
 
     socket.on("gameOver", gameOver);
 
 
     return () => {
-
       socket.off("gameOver", gameOver)
-
     }
   }, []);
 
   useEffect(() => {
     const handleResetEvent = () => {
-      console.log('reset');
       handleReset();
     };
 
     socket.on('reset', handleResetEvent);
 
-
     return () => {
-
       socket.off('reset', handleResetEvent);
-
     };
   });
 
@@ -171,7 +144,7 @@ function App() {
     }
     resetGame();
   };
-  
+
   const resetGame = () => {
     setTileStates(Array(9).fill(''));
     setGameState(['', '', '', '', '', '', '', '', '']);
@@ -181,8 +154,6 @@ function App() {
     setWinner(null);
     setLetterIcon('fa-solid fa-x fa-5x');
     setIsClicked(false);
-  
-    console.log("reset")
   };
 
   const ticTacToeProps = {

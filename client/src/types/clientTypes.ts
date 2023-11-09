@@ -10,19 +10,17 @@ export interface TileProps {
     key: number;
     children?: React.ReactNode;
     isClicked?: boolean | null | undefined;
-    setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsClicked: React.Dispatch<React.SetStateAction<boolean>> | SetStateAction<boolean>;
     handleClick?: React.MouseEventHandler<HTMLDivElement>;
     onClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export type BoardTypes = {
-    gameState?: string[];
-    tileState?: string[];
+    gameState: string[];
     letterIcon: string;
     isClicked?: boolean | null;
-    setIsClicked: React.SetStateAction<boolean>;
-    gameOver: boolean ;
-    tileStates: string[];
+    setIsClicked: React.Dispatch<React.SetStateAction<boolean>> | SetStateAction<boolean>;
+    gameOver: boolean;
     onTileClick: (index: number) => void;
 }
 
@@ -53,14 +51,14 @@ export interface TicTacToeProps {
     setXTurn: (xTurn: boolean | null) => void;
     setGameOver: (gameOver: boolean) => void;
     handleReset: () => void;
-  }
+}
 
 export interface ServerToClientEvents {
     noArg: () => void;
     basicEmit: (a: number, b: string, c: Buffer) => void;
     withAck: (d: string, callback: (e: number) => void) => void;
-  }
-  
+}
+
 export interface ClientToServerEvents {
     hello: () => void;
 }
@@ -76,3 +74,4 @@ export type TicTacToeContextProps = {
     setIsClicked: Dispatch<SetStateAction<boolean>>;
     setIsXTurn: Dispatch<SetStateAction<boolean>>;
 }
+

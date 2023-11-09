@@ -1,4 +1,4 @@
-import { ResetButtonProps } from "../types/tictactoe";
+import { ResetButtonProps } from "../types/clientTypes";
 
 const ResetButton: React.FC<ResetButtonProps> = ({handleReset, isGameOver}) => {
     let resetClass = "hidden";

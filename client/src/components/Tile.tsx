@@ -1,4 +1,4 @@
-import { TileProps } from "../types/tictactoe"
+import { TileProps } from "../types/clientTypes"
 
 const Tile = ({ onClick, id, letterIcon, children }: TileProps) => {
     
