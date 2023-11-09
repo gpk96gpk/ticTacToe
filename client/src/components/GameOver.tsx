@@ -4,7 +4,7 @@ import { GameOverTypes } from "../types/tictactoe";
 
 
 const GameOver: React.FC<GameOverTypes> = ({ handleReset, isGameOver, gameWinner }) => {
-    let gameOverClass = "display-none";
+    let gameOverClass = "hidden";
     if (isGameOver) {
         gameOverClass = "gameOver";
     }

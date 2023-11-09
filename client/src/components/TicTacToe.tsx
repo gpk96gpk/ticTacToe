@@ -1,146 +1,58 @@
-import { SetStateAction, useEffect, useState, useContext } from "react"
+import { useEffect, useContext } from "react"
 import Board from "./Board"
 import GameOver from "./GameOver"
-import { GameStateType } from "../types/tictactoe"
+import { GameStateType, TicTacToeProps } from "../types/tictactoe"
 import { SocketContext } from "../context/SocketContext";
+import { useParams } from "react-router-dom";
 //import { useParams } from 'react-router-dom';
 
 
-const TicTacToe = () => {
-    //const { roomId } = useParams();
+const TicTacToe: React.FC<TicTacToeProps> = (props) => {
+    const { roomCode } = useParams();
+    console.log(roomCode)
     const socket = useContext(SocketContext);
 
-    useEffect(() => {
-        if (socket) {
-            socket.on('connect', () => {
-              console.log('Connected to the server');
-            });    
-        }
-        if (socket) {
-            socket.on('connect_error', (error: Error) => {
-                console.error('Connection error:', error);
-            });
-        }
-        return () => {
-        if (socket) {
-            socket.off('connect');
-            socket.off('connect_error');
-        }  
-        };
-      }, [socket]);
-    const [gameOver, setGameOver] = useState(false);
-    const [xTurn, setXTurn] = useState<boolean | null>(true);
-    const [letterIcon, setLetterIcon] = useState('fa-solid fa-x fa-5x');
-    const [isClicked, setIsClicked] = useState(false);
-    const [winner, setWinner] = useState<string | null>(null);
-    const [tileStates, setTileStates] = useState(Array(9).fill(''));
-    const [clickedIndex, setClickedIndex] = useState<number | null>(null);
-    const [gameState, setGameState] = useState<GameStateType>(['', '', '', '', '', '', '', '', '']);
-    const [playerNumber, setPlayerNumber] = useState<number | null>(null);
-    
-    
-    useEffect(() => {
-        if (socket) {
-          socket.on('connect', () => {
-            console.log('Connected to the server');
-          });
-      
-          socket.on('connect_error', (error: Error) => {
-            console.error('Connection error:', error);
-          });
-      
-          // Clean up the event listeners when the component unmounts
-          return () => {
-            socket.off('connect');
-            socket.off('connect_error');
-          };
-        }
-      }, [socket]);
-    useEffect(() => {
-        if (socket) {
-            socket.on('playerNumber', (number: number) => {
-                setPlayerNumber(number);
-                console.log("playerNumber", number);
-            });
-        }
-        return () => { 
-            if (socket) {
-                socket.off('playerNumber'); 
-            }
-        }
-    }, [socket]);      
-
-
     const handleTileClick = (index: number) => {
-        console.log("playerNumber"+playerNumber)
-        console.log("xTurn"+xTurn)
-        if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
-            if (gameState[index] !== '' || gameOver) {
-                 return;
-            }  
-            setClickedIndex(index);
-            const newGameState: GameStateType = [...gameState];
-            newGameState[index] = xTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x';
-            console.log(gameState)
-            console.log(xTurn)
+        console.log("playerNumber" + props.playerNumber)
+        console.log("xTurn" + props.xTurn)
+        console.log(socket)
+        if ((props.playerNumber === 1 && props.xTurn) || (props.playerNumber === 2 && !props.xTurn)) {
+            if (props.gameState[index] !== '' || props.gameOver) {
+                return;
+            }
+            props.setClickedIndex(index);
+            const newGameState: GameStateType = [...props.gameState];
+            newGameState[index] = props.xTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x';
+            console.log(props.gameState)
+            console.log(props.xTurn)
+            props.setGameState(newGameState)
+            props.setTileStates([...newGameState]);
             if (socket) {
-                console.log('sentPlayerNumber'+playerNumber)
-                socket.emit('tileClicked', xTurn);
-            }          
+                //console.log('sentPlayerNumber'+playerNumber)
+                socket.emit('tileClicked', !props.xTurn, roomCode);
+            }
+            props.setXTurn(!props.xTurn);
             if (socket) {
-                console.log("sentGameState"+newGameState)
-                socket.emit('gameState', newGameState);
-            }         
-            setXTurn(!xTurn);
+                console.log("sentGameState" + newGameState)
+                socket.emit('gameState', newGameState, roomCode);
+            }
         }
     }
 
-
-
     useEffect(() => {
-        const turnChange = (arg: boolean | ((prevState: boolean | null) => boolean | null) | null) => {
-            setXTurn(!arg);
-            console.log("turnChange")
-            console.log('turnChange'+arg)
+        if (props.gameOver) {
+            props.setXTurn(null);
         }
-        if (socket) {
-            socket.on('turn', turnChange);
-        }
-        return () => {
-            if (socket) {
-                socket.off('turn', turnChange)
-            }           
-        }
-    }, [socket]);
-    useEffect(() => {
-        const gameOver = (arg: React.SetStateAction<boolean>) => {
-            setGameOver(arg);
-            console.log("gameOver")
-        }
-        if (socket) {
-            socket.on("gameOver", gameOver);
-        }
-
-        return () => {
-            if (socket) {
-                socket.off("gameOver", gameOver) 
-            } 
-        }  
-    }, [gameOver, socket]);
-    useEffect(() => {
-        if (gameOver) {
-            setXTurn(null);
-        }
-        if (isClicked && xTurn !== null && !gameOver) {
-            setLetterIcon(xTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
+        if (props.isClicked && props.xTurn !== null && !props.gameOver) {
+            props.setLetterIcon(props.xTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x');
             //console.log(letterIcon)
         }
-        if (xTurn === null && gameOver) {
-            setLetterIcon('hidden');
+        if (props.xTurn === null && props.gameOver) {
+            props.setLetterIcon('hidden');
         }
-        !gameOver && setIsClicked(true);
-        
-    }, [isClicked, xTurn, gameOver, letterIcon])
+        !props.gameOver && props.setIsClicked(true);
+
+    }, [props, props.isClicked, props.xTurn])
 
     useEffect(() => {
         const victoryConditions = [
@@ -155,138 +67,77 @@ const TicTacToe = () => {
         ];
         for (let i = 0; i < victoryConditions.length; i++) {
             const condition = victoryConditions[i];
-        
-            if (gameState[condition[0]] === gameState[condition[1]] && gameState[condition[1]] === gameState[condition[2]] && gameState[condition[0]] !== '') {
+
+            if (props.gameState[condition[0]] === props.gameState[condition[1]] && props.gameState[condition[1]] === props.gameState[condition[2]] && props.gameState[condition[0]] !== '') {
                 console.log('game over');
                 if (socket) {
-                    socket.emit('gameOver', true);
+                    socket.emit('gameOver', true, roomCode);
                 }
-                setGameOver(true);
-            } else if (!gameState.includes('')) {
+                props.setGameOver(true);
+            } else if (!props.gameState.includes('')) {
                 console.log('draw');
-                setWinner('Its a Draw')
+                props.setWinner('Its a Draw')
                 if (socket) {
-                  socket.emit('draw', true);
+                    socket.emit('draw', true, roomCode);
                 }
-                setGameOver(true);
-              }
-        }
-    }, [clickedIndex, xTurn, isClicked, gameState, gameOver, socket]);
-    
-    useEffect(() => {
-        const handleTileState = (newTileStates: SetStateAction<string[]>) => {
-            setTileStates(newTileStates);
-        };
-        if (socket) {
-            socket.on('tileState', handleTileState);
-            console.log("tileState"+tileStates)
-        }
-    
-        // Clean up the event listener when the component unmounts
-        return () => {
-            if (socket) {
-                socket.off('tileState', handleTileState);
-            }
-        };
-    }, [socket, tileStates]);
-    useEffect(() => {
-        const newTileStates: string[] = [...tileStates];
-        console.log("newTileStates"+newTileStates)
-        console.log("letterIcon"+letterIcon)
-        console.log("clickedIndex"+clickedIndex)
-        if (letterIcon !== null && clickedIndex !== null && newTileStates[clickedIndex] === '' ) {
-            console.log(tileStates)
-            const newTileStates = [...tileStates];
-            if (clickedIndex !== null) {
-                newTileStates[clickedIndex] = letterIcon;
-            }
-            setTileStates(newTileStates);
-            if (socket) {
-                socket.emit('tileState', newTileStates);
+                props.setGameOver(true);
             }
         }
-        
-    }, [tileStates, letterIcon, clickedIndex, socket])
+    }, [props.gameState, socket, props, roomCode]);
+
     useEffect(() => {
-        const handleGameState = (arg: GameStateType) => {
-            console.log("gameState"+arg)
-            setGameState([...arg]);
-        }
-        if (socket) {
-            socket.on('gameState', handleGameState);
-        }
-        return () => {
+        const newTileStates: string[] = [...props.gameState];
+        console.log("newTileStates" + props.gameState)
+        // console.log("letterIcon"+letterIcon)
+        // console.log("clickedIndex"+clickedIndex)
+        if (props.letterIcon !== null && props.clickedIndex !== null && newTileStates[props.clickedIndex] === '') {
+            //console.log(tileStates)
+            const newTileStates = [...props.gameState];
+            if (props.clickedIndex !== null) {
+                newTileStates[props.clickedIndex] = props.letterIcon;
+            }
+            props.setTileStates([...newTileStates]);
             if (socket) {
-                socket.off('gameState', handleGameState) 
-            } 
-        }
-    }, [socket]);
-    useEffect(() => {
-        if (letterIcon !== null && clickedIndex !== null && gameState[clickedIndex] === '') {
-            const newGameState = [...gameState];
-            newGameState[clickedIndex] = letterIcon;
-            setGameState(newGameState);
-            if (socket) {
-                console.log("sentGameState"+newGameState)
-                socket.emit('gameState', newGameState);
+                console.log("sendingTileState" + newTileStates)
+                socket.emit('tileState', newTileStates, roomCode);
             }
         }
-    }, [gameState, letterIcon, clickedIndex, socket]);    
+
+    }, [props.tileStates, props.letterIcon, props.clickedIndex, props.gameState, socket, props, roomCode])
+
     useEffect(() => {
-        if (gameOver && winner === null) { 
+        if (props.letterIcon !== null && props.clickedIndex !== null && props.gameState[props.clickedIndex] === '') {
+            const newGameState = [...props.gameState];
+            newGameState[props.clickedIndex] = props.letterIcon;
+            props.setGameState(newGameState);
+            // if (socket) {
+            //     console.log("sentGameState"+newGameState)
+            //     socket.emit('gameState', newGameState);
+            // }
+        }
+    }, [props.gameState, props.letterIcon, props.clickedIndex, props]);
+
+    useEffect(() => {
+        if (props.gameOver && props.winner === null) {
             let newWinner;
-                if (!xTurn) {
-                    newWinner = 'X Wins!'
-                } else if (xTurn) {
-                    newWinner = 'O Wins!'
-                } else {
-                    newWinner = 'Its a Draw';
-                }
-            
-            setWinner(newWinner);
-        }
-    }, [winner, xTurn, gameOver]);
-
-    
-    const handleReset = () => {
-        if (gameOver && socket) {
-            socket.emit('reset');
-        }
-        setTileStates(Array(9).fill(''));
-        setGameState(['', '', '', '', '', '', '', '', '']);
-        setGameOver(false);
-        setXTurn(true);
-        setClickedIndex(null);
-        setWinner(null);
-        setLetterIcon('fa-solid fa-x fa-5x');
-        setIsClicked(false);
-
-        console.log("reset")
-    };
-
-    useEffect(() => {
-        const handleResetEvent = () => {
-            console.log('reset');
-            handleReset();
-        };
-        if (socket) {
-            socket.on('reset', handleResetEvent);
-        }
-
-        return () => {
-            if (socket) {
-                socket.off('reset', handleResetEvent);
+            if (!props.xTurn) {
+                newWinner = 'X Wins!'
+            } else if (props.xTurn) {
+                newWinner = 'O Wins!'
+            } else {
+                newWinner = 'Its a Draw';
             }
-        };
-    
-    }, [socket]);
-    
+
+            props.setWinner(newWinner);
+        }
+    }, [props.winner, props.xTurn, props]);
+
     return (
-    <div className="ticTacToe">
-        <h1>Tic Tac Toe</h1>
-        <GameOver handleReset={handleReset} isGameOver={gameOver} gameWinner={winner}/>
-        <Board isClicked={isClicked} tileStates={tileStates} onTileClick={handleTileClick} letterIcon={letterIcon} setIsClicked={setIsClicked} gameOver={gameOver}/>
-    </div>
+        <div className="ticTacToe">
+            <h1>Tic Tac Toe</h1>
+            <GameOver handleReset={props.handleReset} isGameOver={props.gameOver} gameWinner={props.winner} />
+            <Board isClicked={props.isClicked} tileStates={props.gameState} onTileClick={handleTileClick} letterIcon={props.letterIcon} setIsClicked={props.setIsClicked} gameOver={props.gameOver} />
+        </div>
     )
 }
 

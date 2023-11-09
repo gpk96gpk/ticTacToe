@@ -19,6 +19,7 @@ interface SocketData {
   name: string;
   age: number;
 }
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server<
@@ -34,23 +35,31 @@ SocketData
 
 
 let players = {};
-const rooms = {};
+let rooms = [];
+let readyPlayers = 0;
 
 io.on('connection', (socket: Socket) => {
   socket.on('createRoom', (roomCode) => {
+    console.log('create room'+roomCode);
     rooms[roomCode] = [socket.id];
-    players[socket.id] = { roomCode, playerNumber: 1 };
-    rooms[roomCode].xTurn = true;
-    rooms[roomCode].gameOver = false;
-    socket.emit('playerNumber', 1);
+    const playerNumber = 1;
+    players[socket.id] = { roomCode, playerNumber };
+    socket.emit('playerNumber', playerNumber);
   });
   socket.on('joinRoom', (roomCode) => {
+    console.log(`Socket ${socket.id} is trying to join room ${roomCode}`);
     socket.join(roomCode);
-
+    console.log(`Socket ${socket.id} joined room ${roomCode}`);
+    if (!rooms[roomCode]) {
+      rooms[roomCode] = [];
+    }
+    //rooms[roomCode][socket.id] = {};
     rooms[roomCode].push(socket.id);
-    const playerNumber = rooms[roomCode].length;
+    console.log(rooms[roomCode])
+    const playerNumber = 2;
+    
     players[socket.id] = { roomCode, playerNumber };
-  
+    
     socket.emit('playerNumber', playerNumber);
   });
   
@@ -59,39 +68,68 @@ io.on('connection', (socket: Socket) => {
   });
 
 
-  socket.on('tileState', (tileState) => {
-    const roomCode = players[socket.id].roomCode;
-    console.log('tile state'+tileState);
-    socket.broadcast.emit('tileState', tileState);
-  });
-  socket.on('gameState', (gameState) => {
-    const roomCode = players[socket.id].roomCode;
-    console.log('game state'+gameState);
-    socket.broadcast.emit('gameState', gameState);
-  });
-  socket.on('tileClicked', (xTurn) => {
-    const roomCode = players[socket.id].roomCode;
-    const playerNumber = players[socket.id].playerNumber;
-    //xTurn = !xTurn;
+  // socket.on('ready', () => {
+  //   readyPlayers += 1;
 
-    if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
-      console.log('player number'+playerNumber)
-      console.log('tile clicked'+xTurn);
-      socket.broadcast.emit('turn', xTurn);
-    }
+  //   if (readyPlayers === 2) {
+  //     // Both players are ready, start the game
+  //     io.emit<any>('startGame');
+  //   }
+  // });
+
+  socket.on('tileState', (tileState, roomCode) => {
+    //const roomCode = players[socket.id].roomCode;
+    console.log(rooms[roomCode]);
+    const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+    io.to(otherPlayerSocketId).emit<any>('tileState', tileState);
+    console.log('SENT tile state')
   });
-  socket.on('gameOver', (isGameOver) => {
-    const roomCode = players[socket.id].roomCode;
+  socket.on('gameState', (gameState, roomCode) => {
+    //const roomCode = players[socket.id].roomCode;
+    console.log('sending'+gameState);
+    const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+    io.to(otherPlayerSocketId).emit<any>('gameState', gameState);
+    console.log('SENT game state')
+  });
+  socket.on('tileClicked', (xTurn, roomCode) => {
+    console.log('tile clicked'+xTurn);
+    console.log('room code'+roomCode);
+    console.log(rooms[roomCode])
+    const playerNumber = players[socket.id].playerNumber;
+
+    const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+    console.log(socket.id)
+    console.log(otherPlayerSocketId)
+    console.log(rooms[roomCode])
+    console.log('other player socket id'+otherPlayerSocketId);
+    io.to(otherPlayerSocketId).emit<any>('turn', xTurn);
+
+    console.log(xTurn);
+    console.log('SENT turn');
+    
+    // if ((playerNumber === 1 && xTurn) || (playerNumber === 2 && !xTurn)) {
+    //   //console.log('player number'+playerNumber);
+    //   //console.log('tile clicked'+rooms[roomCode].xTurn);
+    // }
+  });
+  socket.on('gameOver', (isGameOver, roomCode) => {
+    //const roomCode = players[socket.id].roomCode;
     console.log('game over');
     rooms[roomCode].gameOver = isGameOver;
-    socket.to(roomCode).emit('gameOver', rooms[roomCode].gamOver);
+    const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+    io.to(roomCode).emit<any>('gameOver', rooms[roomCode].gamOver);
   });
   socket.on('reset', () => {
     const roomCode = players[socket.id].roomCode;
-    console.log('reset');
-    rooms[roomCode].gameOver = false; 
-    rooms[roomCode].xTurn = true;
-    socket.broadcast.emit('reset');
+    console.log('SERVER RECEIVED reset');
+    console.log(roomCode)
+    io.to(roomCode).to(socket.id).emit<any>('reset');
+    console.log(rooms[roomCode])
+    if (rooms[roomCode]) {
+      const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+      io.to(otherPlayerSocketId).to(socket.id).emit<any>('reset');
+      console.log('SENT reset');
+    }
   });
 });
 
@@ -102,8 +140,8 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-httpServer.listen(3000, () => {
-  console.log('server running at http://localhost:3001');
+httpServer.listen(3002, () => {
+  console.log('server running at http://localhost:3002');
 });
 
 httpServer.on('error', (err) => {

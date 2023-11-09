@@ -1,10 +1,7 @@
-interface ResetButtonProps {
-    isGameOver: boolean;
-    handleReset: () => void;
-}
+import { ResetButtonProps } from "../types/tictactoe";
 
 const ResetButton: React.FC<ResetButtonProps> = ({handleReset, isGameOver}) => {
-    let resetClass = "display-none";
+    let resetClass = "hidden";
     if (isGameOver) {
         resetClass = "gameOver";
     }
