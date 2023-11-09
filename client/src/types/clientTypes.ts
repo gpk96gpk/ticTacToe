@@ -1,8 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
 
-export interface ConnectionManagerProps {
-
-}
 
 export interface TileProps {
     id?: number;
@@ -36,7 +33,6 @@ export interface TicTacToeProps {
     playerNumber: number | null;
     gameOver: boolean;
     xTurn: boolean | null;
-    tileStates: string[];
     gameState: GameStateType;
     letterIcon: string;
     isClicked: boolean;
@@ -46,7 +42,6 @@ export interface TicTacToeProps {
     setWinner: (winner: string | null) => void;
     setIsClicked: React.Dispatch<React.SetStateAction<boolean>>;
     setLetterIcon: (letterIcon: string) => void;
-    setTileStates: (tileStates: string[]) => void;
     setGameState: (gameState: GameStateType) => void;
     setXTurn: (xTurn: boolean | null) => void;
     setGameOver: (gameOver: boolean) => void;
@@ -74,4 +69,3 @@ export type TicTacToeContextProps = {
     setIsClicked: Dispatch<SetStateAction<boolean>>;
     setIsXTurn: Dispatch<SetStateAction<boolean>>;
 }
-

@@ -18,7 +18,6 @@ const TicTacToe: React.FC<TicTacToeProps> = (props) => {
             const newGameState: GameStateType = [...props.gameState];
             newGameState[index] = props.xTurn ? 'fa-solid fa-x fa-5x' : 'fa-solid fa-o fa-5x';
             props.setGameState([...newGameState])
-            props.setTileStates([...newGameState]);
             if (socket) {
                 socket.emit('tileClicked', !props.xTurn, roomCode);
             }
@@ -54,23 +53,28 @@ const TicTacToe: React.FC<TicTacToeProps> = (props) => {
             [0, 4, 8],
             [2, 4, 6]
         ];
+        let victory = false;
         for (let i = 0; i < victoryConditions.length; i++) {
             const condition = victoryConditions[i];
 
             if (props.gameState[condition[0]] === props.gameState[condition[1]] &&
                 props.gameState[condition[1]] === props.gameState[condition[2]] &&
                 props.gameState[condition[0]] !== '') {
+                victory = true;
                 if (socket) {
                     socket.emit('gameOver', true, roomCode);
                 }
                 props.setGameOver(true);
-            } else if (!props.gameState.includes('')) {
-                props.setWinner('Its a Draw')
-                if (socket) {
-                    socket.emit('draw', true, roomCode);
-                }
-                props.setGameOver(true);
+                break;
             }
+        }
+
+        if (!victory && !props.gameState.includes('')) {
+            props.setWinner('Its a Draw')
+            if (socket) {
+                socket.emit('draw', true, roomCode);
+            }
+            props.setGameOver(true);
         }
     }, [props.gameState, socket, props, roomCode]);
 

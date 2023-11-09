@@ -12,7 +12,6 @@ function App() {
   const [playerNumber, setPlayerNumber] = useState<number | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [xTurn, setXTurn] = useState<boolean | null>(true);
-  const [tileStates, setTileStates] = useState(Array(9).fill(''));
   const [gameState, setGameState] = useState<GameStateType>(['', '', '', '', '', '', '', '', '']);
   const [letterIcon, setLetterIcon] = useState('fa-solid fa-x fa-5x');
   const [isClicked, setIsClicked] = useState(false);
@@ -88,19 +87,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handleTileState = (newTileStates: string[]) => {
-      setTileStates([...newTileStates]);
-    };
-
-    socket.on('tileState', handleTileState);
-
-    return () => {
-      socket.off('tileState', handleTileState);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     const handleGameState = (arg: GameStateType) => {
       setGameState([...arg]);
     }
@@ -146,7 +132,6 @@ function App() {
   };
 
   const resetGame = () => {
-    setTileStates(Array(9).fill(''));
     setGameState(['', '', '', '', '', '', '', '', '']);
     setGameOver(false);
     setXTurn(true);
@@ -160,7 +145,6 @@ function App() {
     playerNumber,
     gameOver,
     xTurn,
-    tileStates,
     gameState,
     letterIcon,
     isClicked,
@@ -169,7 +153,6 @@ function App() {
     setPlayerNumber,
     setGameOver,
     setXTurn,
-    setTileStates,
     setGameState,
     setLetterIcon,
     setIsClicked,

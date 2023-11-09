@@ -11,7 +11,6 @@ const io = new Server<SocketTypes>(httpServer, {
   }
 });
 
-
 let players = {};
 let rooms = [];
 
@@ -37,11 +36,6 @@ io.on('connection', (socket: Socket) => {
 
   socket.on('error', (error) => {
     console.error('Socket.IO error:', error);
-  });
-
-  socket.on('tileState', (tileState, roomCode) => {
-    const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-    io.to(otherPlayerSocketId).emit<any>('tileState', tileState);
   });
 
   socket.on('gameState', (gameState, roomCode) => {
